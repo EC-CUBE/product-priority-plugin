@@ -14,6 +14,7 @@ namespace Plugin\ProductPriority\Controller;
 use Eccube\Application;
 use Eccube\Controller\AbstractController;
 use Plugin\ProductPriority\Constant;
+use Plugin\ProductPriority\Entity\Config;
 use Plugin\ProductPriority\Entity\ProductPriority;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,6 +69,7 @@ class ProductPriorityController extends AbstractController
                 'searchProductModalForm' => $searchProductModalForm->createView(),
                 'Priorities' => $Priorities,
                 'categoryId' => is_null($categoryId) ? Constant::CATEGORY_ID_ALL_PRODUCT : $categoryId,
+                'Config' => $app['eccube.plugin.product_priority.repository.config']->find(Config::ID)
             )
         );
     }

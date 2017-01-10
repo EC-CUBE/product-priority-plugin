@@ -308,12 +308,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             <div class="box">
                 <div class="box-header">
                     <div class="box-title">
-                        商品おすすめ順登録
-                        <span class="glyphicon glyphicon-question-sign"
-                              data-toggle="tooltip"
-                              data-placement="right"
-                              data-html="true"
-                              data-title="<p align='left'>カテゴリ毎に、おすすめする商品を登録できます。おすすめ商品を登録後、並び順をドラッグ＆ドロップで設定してください。</p>"></span>
+                        <ul class="list-inline">
+                            <li>商品おすすめ順登録</li>
+                            <li><span class="glyphicon glyphicon-question-sign"
+                                  data-toggle="tooltip"
+                                  data-placement="right"
+                                  data-html="true"
+                                  data-title="<p align='left'>カテゴリ毎に、おすすめする商品を登録できます。おすすめ商品を登録後、並び順をドラッグ＆ドロップで設定してください。</p>"></span></li>
+                        </ul>
                     </div>
                 </div>
                 <div class="box-body">
@@ -323,15 +325,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                 {{ form_widget(form.category) }}
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <button type="button" class="btn btn-default btn-block" data-toggle="modal"
-                                        data-target="#searchProductModal">おすすめ商品登録
-                                </button>
+                                <ul class="list-inline">
+                                    <li>
+                                        <button type="button" class="btn btn-default btn-block" data-toggle="modal"
+                                                data-target="#searchProductModal">おすすめ商品登録
+                                        </button>
+                                    </li>
+                                    <li><a href="{{ path('product_list', {
+                                            'category_id' : categoryId ? categoryId : '',
+                                            'orderby' : Config.order_by_id
+                                        }) }}" target="_blank"><span class="glyphicon glyphicon-new-window"></span><span class="hidden-xs"> 表示を確認</span></a></li>
+                                </ul>
                             </div>
                         </div>
                         {% if Priorities|length > 0 %}
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="row">
                                     <div class="col-md-4 col-md-offset-8">
                                         <div class="form-group">
