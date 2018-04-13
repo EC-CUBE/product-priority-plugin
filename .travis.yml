@@ -19,7 +19,7 @@ env:
   global:
     PLUGIN_CODE=ProductPriority
   matrix:
-      # for coverrage
+      # for coverrage 
       - ECCUBE_VERSION=master DB=pgsql USER=postgres DBNAME=myapp_test DBPASS=password DBUSER=postgres COVERRAGE=true
       # ec-cube master
       - ECCUBE_VERSION=master DB=mysql USER=root DBNAME=myapp_test DBPASS=' ' DBUSER=root
