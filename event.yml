@@ -1,8 +1,0 @@
-front.product.index.search:
-    - [onProductIndexSearch, NORMAL]
-admin.product.edit.complete:
-    - [onAdminProductEditComplete, NORMAL]
-admin.product.delete.complete:
-    - [onAdminProductDeleteComplete, NORMAL]
-admin.product.category.delete.complete:
-    - [onAdminProductCategoryDeleteComplete, NORMAL]

@@ -1,12 +1,15 @@
 <?php
+
 /*
-  * This file is part of EC-CUBE
-  *
-  * Copyright (C) 2016 LOCKON CO.,LTD. All Rights Reserved.
-  *
-  * For the full copyright and license information, please view the LICENSE
-  * file that was distributed with this source code.
-  */
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
+ * http://www.lockon.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Plugin\ProductPriority\Tests\Web\Admin;
 
@@ -16,17 +19,17 @@ class ProductPriorityControllerTest extends AbstractAdminWebTestCase
 {
     public function testRouting()
     {
-        $this->client->request('GET', $this->app->url('admin_product_priority'));
+        $this->client->request('GET', $this->generateUrl('admin_product_priority'));
         $this->assertTrue($this->client->getResponse()->isSuccessful());
 
-        $this->client->request('GET', $this->app->url('admin_product_priority_edit', array(
+        $this->client->request('GET', $this->generateUrl('admin_product_priority_edit', [
             'categoryId' => 0,
-        )));
+        ]));
         $this->assertTrue($this->client->getResponse()->isSuccessful());
 
-        $this->client->request('GET', $this->app->url('admin_product_priority_edit', array(
+        $this->client->request('GET', $this->generateUrl('admin_product_priority_edit', [
             'categoryId' => 1,
-        )));
+        ]));
         $this->assertTrue($this->client->getResponse()->isSuccessful());
     }
 }

@@ -1,22 +1,26 @@
 <?php
+
 /*
-  * This file is part of EC-CUBE
-  *
-  * Copyright (C) 2016 LOCKON CO.,LTD. All Rights Reserved.
-  *
-  * For the full copyright and license information, please view the LICENSE
-  * file that was distributed with this source code.
-  */
+ * This file is part of EC-CUBE
+ *
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
+ * http://www.lockon.co.jp/
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Plugin\ProductPriority\Tests\Repository;
 
 use Eccube\Tests\EccubeTestCase;
+use Plugin\ProductPriority\Repository\ConfigRepository;
 
 class ConfigRepositoryTest extends EccubeTestCase
 {
     public function testFind()
     {
-        $Entity = $this->app['eccube.plugin.product_priority.repository.config']->find(1);
+        $Entity = $this->container->get(ConfigRepository::class)->find(1);
 
         $this->assertInstanceOf('Plugin\ProductPriority\Entity\Config', $Entity);
     }

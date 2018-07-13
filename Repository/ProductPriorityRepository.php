@@ -1,37 +1,37 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2016 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
  * http://www.lockon.co.jp/
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
 
 namespace Plugin\ProductPriority\Repository;
 
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use Eccube\Application;
 use Eccube\Entity\Category;
 use Eccube\Entity\Product;
-use Eccube\Util\Str;
-use Plugin\ProductPriority\Constant;
+use Eccube\Repository\AbstractRepository;
+use Eccube\Util\StringUtil;
+use Plugin\ProductPriority\Entity\ProductPriority;
+use Symfony\Bridge\Doctrine\RegistryInterface;
 
-class ProductPriorityRepository extends EntityRepository
+/**
+ * Class ProductPriorityRepository
+ */
+class ProductPriorityRepository extends AbstractRepository
 {
     /**
-     * @var Application
+     * @param RegistryInterface $registry
      */
-    protected $app;
-
-    /**
-     * @param Application $app
-     */
-    public function setApplication(Application $app)
+    public function __construct(RegistryInterface $registry)
     {
-        $this->app = $app;
+        parent::__construct($registry, ProductPriority::class);
     }
 
     /**
@@ -47,7 +47,7 @@ class ProductPriorityRepository extends EntityRepository
             ->getQuery()
             ->getScalarResult();
 
-        $array = array();
+        $array = [];
         foreach ($results as $result) {
             $category_id = (int) current($result);
             $count = (int) next($result);
@@ -58,7 +58,7 @@ class ProductPriorityRepository extends EntityRepository
     }
 
     /**
-     * 対象カテゴリの並び順の最大値を返す.
+     * 対象カテゴリの並び順の最大値を返す
      *
      * @param $categoryId
      *
@@ -67,11 +67,15 @@ class ProductPriorityRepository extends EntityRepository
     public function getMaxPriorityByCategoryId($categoryId)
     {
         $qb = $this->createQueryBuilder('pp');
-        $max = $qb->select('COALESCE(MAX(pp.priority), 0) as priority_max')
-            ->where('pp.category_id = :categoryId')
-            ->setParameter('categoryId', $categoryId)
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            $max = $qb->select('COALESCE(MAX(pp.priority), 0) as priority_max')
+                ->where('pp.category_id = :categoryId')
+                ->setParameter('categoryId', $categoryId)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Exception $exception) {
+            $max = 0;
+        }
 
         return (int) $max;
     }
@@ -92,13 +96,13 @@ class ProductPriorityRepository extends EntityRepository
     public function getPrioritiesByCategoryAsArray(Category $Category = null)
     {
         $categoryId = is_null($Category)
-            ? Constant::CATEGORY_ID_ALL_PRODUCT
+            ? ProductPriority::CATEGORY_ID_ALL_PRODUCT
             : $Category->getId();
 
         $qb = $this->createQueryBuilder('pp');
 
         $ProductPriorities = $qb
-            ->select(array('pp.product_id', 'pp.category_id', 'pp.priority', 'p.name AS product_name'))
+            ->select(['pp.product_id', 'pp.category_id', 'pp.priority', 'p.name AS product_name'])
             ->innerJoin('Eccube\Entity\Product', 'p', 'WITH', 'pp.product_id = p.id')
             ->where('pp.category_id = :categoryId')
             ->orderBy('pp.priority', 'DESC')
@@ -121,7 +125,7 @@ class ProductPriorityRepository extends EntityRepository
     public function getProductQueryBuilder($search = null, Category $Category = null)
     {
         $categoryId = is_null($Category)
-            ? Constant::CATEGORY_ID_ALL_PRODUCT
+            ? ProductPriority::CATEGORY_ID_ALL_PRODUCT
             : $Category->getId();
 
         $excludedIds = array_map(
@@ -135,7 +139,7 @@ class ProductPriorityRepository extends EntityRepository
         );
 
         $qb = $this->getEntityManager()->createQueryBuilder()
-            ->select(array('p, pc'))
+            ->select(['p, pc'])
             ->from('Eccube\Entity\Product', 'p')
             ->innerJoin('p.ProductClasses', 'pc');
 
@@ -156,7 +160,7 @@ class ProductPriorityRepository extends EntityRepository
         }
 
         // 商品ID, 商品名, 商品コード
-        if (Str::isNotBlank($search)) {
+        if (StringUtil::isNotBlank($search)) {
             $id = preg_match('/^\d+$/', $search) ? $search : null;
             $qb
                 ->andWhere('p.id = :id OR p.name LIKE :name_or_code OR pc.code LIKE :name_or_code')
@@ -170,16 +174,16 @@ class ProductPriorityRepository extends EntityRepository
     }
 
     /**
-     * 対象商品のカテゴリに紐付いていない並び順を削除する.
+     * 対象商品のカテゴリに紐付いていない並び順を削除する
      *
      * @param Product $Product
      */
     public function cleanupProductPriority(Product $Product)
     {
         // "全ての商品"は除く
-        $categoryIds = array(
-            Constant::CATEGORY_ID_ALL_PRODUCT,
-        );
+        $categoryIds = [
+            ProductPriority::CATEGORY_ID_ALL_PRODUCT,
+        ];
 
         foreach ($Product->getProductCategories() as $ProductCategory) {
             $categoryIds[] = $ProductCategory->getCategory()->getId();
@@ -193,24 +197,24 @@ class ProductPriorityRepository extends EntityRepository
                 $qb->expr()->notIn('pp.category_id', ':categoryIds')
             )
         )->setParameters(
-            array(
+            [
                 'productId' => $Product->getId(),
                 'categoryIds' => $categoryIds,
-            )
+            ]
         );
 
         $ProductPriorities = $qb->getQuery()->getResult();
 
         foreach ($ProductPriorities as $ProductPriority) {
-            $this->app['orm.em']->remove($ProductPriority);
-            $this->app['orm.em']->flush($ProductPriority);
+            $this->getEntityManager()->remove($ProductPriority);
+            $this->getEntityManager()->flush($ProductPriority);
         }
     }
 
     /**
-     * おすすめ順ソートのクエリを構築する.
+     * おすすめ順ソートのクエリを構築する
      *
-     * @param QueryBuilder  $qb
+     * @param QueryBuilder $qb
      * @param Category|null $Category
      */
     public function buildSortQuery(QueryBuilder $qb, Category $Category = null)
@@ -219,32 +223,36 @@ class ProductPriorityRepository extends EntityRepository
         $isAll = is_null($Category);
 
         // カテゴリの最大値を取得.
-        $categoryQb = $this->app['eccube.repository.category']->createQueryBuilder('c');
-        $max = $categoryQb->select('MAX(c.rank) + 1')
-            ->getQuery()
-            ->setMaxResults(1)
-            ->getSingleScalarResult();
+        $categoryQb = $this->getEntityManager()->getRepository('Eccube\Entity\Category')->createQueryBuilder('c');
+        try {
+            $max = $categoryQb->select('MAX(c.sort_no) + 1')
+                ->getQuery()
+                ->setMaxResults(1)
+                ->getSingleScalarResult();
+        } catch (\Exception $exception) {
+            $max = 1;
+        }
 
         /*
-         * c.rank * 2147483648 + pp.priority については以下を参照
+         * c.sort_no * 2147483648 + pp.priority については以下を参照
          *
          * @link https://github.com/EC-CUBE/eccube-2_13/blob/master/data/class/pages/products/LC_Page_Products_List.php#L234
          * @link http://xoops.ec-cube.net/modules/newbb/viewtopic.php?viewmode=thread&topic_id=11871&forum=10&post_id=54832#forumpost54832
          *
-         * 全商品の並び順はpp.category_id = 0で設定されているため, c.rankの最大値+1でsort_priorityを計算する
+         * 全商品の並び順はpp.category_id = 0で設定されているため, c.sort_noの最大値+1でsort_priorityを計算する
          */
         if ($isAll) {
             $select = "COALESCE(
                 MAX(
                     CASE
                         WHEN pp.category_id = 0 THEN $max * 2147483648 + pp.priority
-                        ELSE c.rank * 2147483648 + pp.priority
+                        ELSE c.sort_no * 2147483648 + pp.priority
                     END
                 ),
              0) AS HIDDEN sort_priority";
             $join = '(pct.product_id = pp.product_id AND pct.category_id = pp.category_id) OR (pct.product_id = pp.product_id AND pp.category_id = 0)';
         } else {
-            $select = 'COALESCE(MAX(c.rank * 2147483648 + pp.priority), 0) AS HIDDEN sort_priority';
+            $select = 'COALESCE(MAX(c.sort_no * 2147483648 + pp.priority), 0) AS HIDDEN sort_priority';
             $join = '(pct.product_id = pp.product_id AND pct.category_id = pp.category_id)';
         }
 
@@ -311,7 +319,7 @@ class ProductPriorityRepository extends EntityRepository
     }
 
     /**
-     * ProductCategoryの件数を取得する.
+     * ProductCategoryの件数を取得する
      *
      * @param $productId
      * @param $categoryId
@@ -322,14 +330,18 @@ class ProductPriorityRepository extends EntityRepository
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
-        $count = $qb->select('COUNT(pc)')
-            ->from('Eccube\Entity\ProductCategory', 'pc')
-            ->where($qb->expr()->eq('pc.product_id', ':productId'))
-            ->andWhere($qb->expr()->eq('pc.category_id', ':categoryId'))
-            ->setParameter('productId', $productId)
-            ->setParameter('categoryId', $categoryId)
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            $count = $qb->select('COUNT(pc)')
+                ->from('Eccube\Entity\ProductCategory', 'pc')
+                ->where($qb->expr()->eq('pc.product_id', ':productId'))
+                ->andWhere($qb->expr()->eq('pc.category_id', ':categoryId'))
+                ->setParameter('productId', $productId)
+                ->setParameter('categoryId', $categoryId)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Exception $e) {
+            $count = 0;
+        }
 
         return (int) $count;
     }

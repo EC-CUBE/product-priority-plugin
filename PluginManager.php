@@ -1,38 +1,40 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2016 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
  * http://www.lockon.co.jp/
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
 
 namespace Plugin\ProductPriority;
 
 use Eccube\Entity\Master\ProductListOrderBy;
 use Eccube\Plugin\AbstractPluginManager;
 use Plugin\ProductPriority\Entity\Config;
+use Plugin\ProductPriority\Repository\ConfigRepository;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Class PluginManager
+ */
 class PluginManager extends AbstractPluginManager
 {
-    public function install($config, $app)
+    /**
+     * @param array $config
+     * @param null $app
+     * @param ContainerInterface $container
+     */
+    public function enable($config = [], $app = null, ContainerInterface $container)
     {
-    }
-
-    public function uninstall($config, $app)
-    {
-        $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code'], 0);
-    }
-
-    public function enable($config, $app)
-    {
-        $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code']);
-
+        $entityManager = $container->get('doctrine.orm.entity_manager');
         // mtb_product_list_order_byに"おすすめ順"を追加する.
         // idの最大値を取得
-        $id = $app['orm.em']->createQueryBuilder()
+        $id = $entityManager->createQueryBuilder()
             ->select('(COALESCE(MAX(plob.id), 0) + 1) AS max_id')
             ->from('Eccube\Entity\Master\ProductListOrderBy', 'plob')
             ->getQuery()
@@ -43,8 +45,8 @@ class PluginManager extends AbstractPluginManager
             ++$id;
         }
         // rankの最大値を取得
-        $rank = $app['orm.em']->createQueryBuilder()
-            ->select('(COALESCE(MAX(plob.rank), 0) + 1) AS max_rank')
+        $rank = $entityManager->createQueryBuilder()
+            ->select('(COALESCE(MAX(plob.sort_no), 0) + 1) AS max_rank')
             ->from('Eccube\Entity\Master\ProductListOrderBy', 'plob')
             ->getQuery()
             ->getSingleScalarResult();
@@ -53,46 +55,38 @@ class PluginManager extends AbstractPluginManager
         $ProductListOrderBy = new ProductListOrderBy();
         $ProductListOrderBy->setId($id);
         $ProductListOrderBy->setName('おすすめ順');
-        $ProductListOrderBy->setRank($rank);
+        $ProductListOrderBy->setSortNo($rank);
 
-        $app['orm.em']->persist($ProductListOrderBy);
-        $app['orm.em']->flush($ProductListOrderBy);
+        $entityManager->persist($ProductListOrderBy);
+        $entityManager->flush($ProductListOrderBy);
 
-        // 追加したIDを設定テーブルに保存
-        $Config = $app['orm.em']
-            ->getRepository('Plugin\ProductPriority\Entity\Config')
-            ->find(Config::ID);
-
-        if (is_null($Config)) {
-            $Config = new Config();
-            $Config->setId(Config::ID);
-        }
-
+        $Config = new Config();
+        $Config->setId(Config::ID);
         $Config->setOrderById($id);
 
-        $app['orm.em']->persist($Config);
-        $app['orm.em']->flush($Config);
+        $entityManager->persist($Config);
+        $entityManager->flush($Config);
     }
 
-    public function disable($config, $app)
+    /**
+     * @param array $config
+     * @param null $app
+     * @param ContainerInterface $container
+     */
+    public function disable($config = [], $app = null, ContainerInterface $container)
     {
+        $entityManager = $container->get('doctrine.orm.entity_manager');
         // "おすすめ順"を削除
-        $Config = $app['orm.em']
-            ->getRepository('Plugin\ProductPriority\Entity\Config')
+        $Config = $container->get(ConfigRepository::class)
             ->find(Config::ID);
 
-        $ProductListOrderBy = $app['orm.em']
+        $ProductListOrderBy = $entityManager
             ->getRepository('Eccube\Entity\Master\ProductListOrderBy')
             ->find($Config->getOrderById());
 
         if (!is_null($ProductListOrderBy)) {
-            $app['orm.em']->remove($ProductListOrderBy);
-            $app['orm.em']->flush($ProductListOrderBy);
+            $entityManager->remove($ProductListOrderBy);
+            $entityManager->flush($ProductListOrderBy);
         }
-    }
-
-    public function update($config, $app)
-    {
-        $this->migrationSchema($app, __DIR__.'/Resource/doctrine/migration', $config['code']);
     }
 }

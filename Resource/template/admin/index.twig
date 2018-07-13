@@ -19,68 +19,24 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #}
-{% extends 'default_frame.twig' %}
+{% extends '@admin/default_frame.twig' %}
 
 {% set menus = ['product', 'admin_product_priority'] %}
 
-{% block title %}商品管理{% endblock %}
-{% block sub_title %}商品おすすめ順登録{% endblock %}
+{% block title %}{{ 'product_priority.admin.title'|trans }}{% endblock %}
+{% block sub_title %}{{ 'product_priority.admin.subtitle'|trans }}{% endblock %}
 
-{% form_theme form 'Form/bootstrap_3_horizontal_layout.html.twig' %}
-{% form_theme searchProductModalForm 'Form/bootstrap_3_horizontal_layout.html.twig' %}
-
-{% block stylesheet %}
-    <style type="text/css">
-        .glyphicon-refresh-animate {
-            -animation: spin .7s infinite linear;
-            -webkit-animation: spin2 .7s infinite linear;
-        }
-
-        @-webkit-keyframes spin2 {
-            from { -webkit-transform: rotate(0deg);}
-            to { -webkit-transform: rotate(360deg);}
-        }
-
-        @keyframes spin {
-            from { transform: scale(1) rotate(0deg);}
-            to { transform: scale(1) rotate(360deg);}
-        }
-
-        .table > thead > tr > td.checked,
-        .table > tbody > tr > td.checked,
-        .table > tfoot > tr > td.checked,
-        .table > thead > tr > th.checked,
-        .table > tbody > tr > th.checked,
-        .table > tfoot > tr > th.checked,
-        .table > thead > tr.checked > td,
-        .table > tbody > tr.checked > td,
-        .table > tfoot > tr.checked > td,
-        .table > thead > tr.checked > th,
-        .table > tbody > tr.checked > th,
-        .table > tfoot > tr.checked > th {
-            background-color: #ffffcc;
-        }
-
-        .table-hover > tbody > tr > td.checked:hover,
-        .table-hover > tbody > tr > th.checked:hover,
-        .table-hover > tbody > tr.checked:hover > td,
-        .table-hover > tbody > tr:hover > .checked,
-        .table-hover > tbody > tr.checked:hover > th {
-            background-color: #faf2cc;
-        }
-
-        .table > tbody > tr > td.vertical-align-middle {
-            vertical-align: middle;
-        }
-    </style>
-{% endblock %}
+{% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
+{% form_theme searchProductModalForm '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
 
 {% block javascript %}
-    <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/jquery.ui/jquery.ui.core.min.js"></script>
-    <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/jquery.ui/jquery.ui.widget.min.js"></script>
-    <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/jquery.ui/jquery.ui.mouse.min.js"></script>
-    <script src="{{ app.config.admin_urlpath }}/assets/js/vendor/jquery.ui/jquery.ui.sortable.min.js"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.core.min.js', 'admin') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.widget.min.js', 'admin') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.mouse.min.js', 'admin') }}"></script>
+    <script src="{{ asset('assets/js/vendor/jquery.ui/jquery.ui.sortable.min.js', 'admin') }}"></script>
     <script>
+        var registerd_flg = false;
+
         // 並び順制御
         $(function () {
             var oldRanks = [];
@@ -98,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 items: '> tr',
                 cursor: 'move',
                 update: function (e, ui) {
-                    $("body").append($('<div class="modal-backdrop in"></div>'));
+                    $("body").append($('<div class="modal-backdrop show"></div>'));
                     updateRank();
                 }
             });
@@ -125,11 +81,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 });
             };
         });
-    </script>
-    <script>
+
         $(function () {
             // カテゴリプルダウン選択
-            $('#admin_product_priority_category_category').on('change', function () {
+            $('#category_category').on('change', function () {
                 var categoryId = $(this).val();
                 var href = "{{ url('admin_product_priority') }}";
                 if (categoryId) {
@@ -142,14 +97,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 var checkall = $(this).prop('checked');
                 if (checkall) {
                     $('input[id^=check-]').prop('checked', true)
-                            .parent()
-                            .parent()
-                            .addClass('checked');
+                        .parent()
+                        .parent()
+                        .addClass('checked');
                 } else {
                     $('input[id^=check-]').prop('checked', false)
-                            .parent()
-                            .parent()
-                            .removeClass('checked');
+                        .parent()
+                        .parent()
+                        .removeClass('checked');
                 }
             });
             // チェックボックス選択時に行の背景色を切り替える
@@ -173,11 +128,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 });
 
                 if (!checked) {
-                    alert('選択されていません。');
-                    return;
-                }
-
-                if (!window.confirm('おすすめ順から削除しますか？')) {
+                    alert('{{ 'product_priority.admin.select.no'|trans }}');
                     return;
                 }
 
@@ -207,12 +158,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
             // モーダル内商品検索
             $('#searchProductModalButton').on('click', function () {
-                $('#register-checked').addClass('hidden');
+                $('#register-checked').addClass('d-none');
                 $('#searchProductModalList').html(
                     '<div class="no-padding">' +
-                        '<div class="data-empty">' +
-                            '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...' +
-                        '</div>' +
+                    '<div class="data-empty">' +
+                    '<i class="fa fa-refresh" aria-hidden="true"></i> Loading...' +
+                    '</div>' +
                     '</div>'
                 );
 
@@ -231,12 +182,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                         $('#pagination_wrap').removeClass('box-footer');
                     },
                     error: function () {
-                        alert('search product failed.');
+                        alert('{{ 'product_priority.admin.search.not_found'|trans }}');
                     }
                 });
             });
-
-            registerd_flg = false;
 
             // モーダル内登録ボタン押下
             $('#register-checked').on('click', function () {
@@ -248,7 +197,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 });
 
                 if (!checked) {
-                    alert('選択されていません。');
+                    alert('{{ 'product_priority.admin.select.no'|trans }}');
                     return;
                 }
 
@@ -256,13 +205,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                 $overlay = $('<div class="prevention-masked">');
                 $('body').append($overlay);
 
-                $('#register-checked').addClass('hidden');
+                $('#register-checked').addClass('d-none');
                 $('#searchProductModalList').html(
-                        '<div class="no-padding">' +
-                        '<div class="data-empty">' +
-                        '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...' +
-                        '</div>' +
-                        '</div>'
+                    '<div class="no-padding">' +
+                    '<div class="data-empty">' +
+                    '<i class="fa fa-refresh" aria-hidden="true"></i> Loading...' +
+                    '</div>' +
+                    '</div>'
                 );
 
                 $.ajax({
@@ -278,14 +227,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                     },
                     error: function () {
                         $('.prevention-masked').remove();
-                        alert('register product priority failed.');
+                        alert('{{ 'admin.register.failed'|trans }}');
                     }
                 });
             });
         });
 
-    </script>
-    <script>
         $(function () {
             $('#searchProductModal').on('hidden.bs.modal', function (event) {
                 if (registerd_flg) {
@@ -294,146 +241,141 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
             })
         });
     </script>
-    <script>
-        // 機能説明のツールチップを有効にする
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-    </script>
 {% endblock %}
 
 {% block main %}
-    <div class="row">
-        <div class="col-md-12">
-            <div class="box">
-                <div class="box-header">
-                    <div class="box-title">
-                        <ul class="list-inline">
-                            <li>商品おすすめ順登録</li>
-                            <li><span class="glyphicon glyphicon-question-sign"
-                                  data-toggle="tooltip"
-                                  data-placement="right"
-                                  data-html="true"
-                                  data-title="<p align='left'>カテゴリ毎に、おすすめする商品を登録できます。おすすめ商品を登録後、並び順をドラッグ＆ドロップで設定してください。</p>"></span></li>
-                        </ul>
+    <div class="c-contentsArea__cols">
+        <div class="c-contentsArea__primaryCol">
+            <div class="c-primaryCol">
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                    <span data-toggle="tooltip"
+                          data-placement="right"
+                          data-html="true"
+                          data-title="<p align='left'>{{ 'product_priority.admin.header.tooltip'|trans }}</p>"
+                    >{{ 'product_priority.admin.header'|trans }}</span>
                     </div>
-                </div>
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                {{ form_widget(form.category) }}
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">{{ form_widget(form.category) }}</div>
+                            <div class="col-4 mb-2">
                                 <ul class="list-inline">
-                                    <li>
-                                        <button type="button" class="btn btn-default btn-block" data-toggle="modal"
-                                                data-target="#searchProductModal">おすすめ商品登録
+                                    <li class="list-inline-item">
+                                        <button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#searchProductModal">{{ 'product_priority.admin.search.open_modal'|trans }}
                                         </button>
                                     </li>
-                                    <li><a href="{{ path('product_list', {
+                                    <li class="list-inline-item">
+                                        <a href="{{ path('product_list', {
                                             'category_id' : categoryId ? categoryId : '',
-                                            'orderby' : Config.order_by_id
-                                        }) }}" target="_blank"><span class="glyphicon glyphicon-new-window"></span><span class="hidden-xs"> 表示を確認</span></a></li>
+                                            'orderby' : order_no
+                                        }) }}" target="_blank"><i class="fa fa-external-link" aria-hidden="true"></i><span class="d-none d-sm-inline-block">{{ 'product_priority.admin.preview'|trans }}</span></a>
+                                    </li>
                                 </ul>
                             </div>
-                        </div>
-                        {% if Priorities|length > 0 %}
-                            <div class="col-md-4">
-                                <div class="row">
-                                    <div class="col-md-6 col-md-offset-6">
-                                        <div class="form-group">
-                                            <button id="delete-checked" type="button" class="btn btn-default btn-block">
-                                                削除
-                                            </button>
+
+                            {% if Priorities|length > 0 %}
+                                <div class="col-4">
+                                    <div class="row">
+                                        <div class="col-6 offset-6">
+                                            <div class="form-group">
+                                                <button data-toggle="modal" data-target="#deleteModal" type="button" class="btn btn-default btn-block">
+                                                    {{ 'common.label.delete'|trans }}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% if Priorities|length > 0 %}
-                    <div class="box-body no-padding">
-                        <table class="table table-hover">
-                            <thead style="background-color: #F9F9F9;">
-                            <tr>
-                                <td width="10%">
-                                    <div style="color: #b8bec4">
-                                        <svg class="cb cb-ellipsis-v">
-                                            <use xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                 xlink:href="#cb-ellipsis-v"></use>
-                                        </svg>
-                                    </div>
-                                </td>
-                                <td width="20%">商品ID</td>
-                                <td width="60%">商品名</td>
-                                <td width="10%"><input type="checkbox" id="toggle-check-all"></td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for Priority in Priorities %}
-                                <tr class="item_box"
-                                    data-priority="{{ Priority.priority }}"
-                                    data-productid="{{ Priority.product_id }}">
-                                    <td width="10%">
-                                        <div style="color: #b8bec4">
-                                            <svg class="cb cb-ellipsis-v">
-                                                <use xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                     xlink:href="#cb-ellipsis-v"></use>
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td width="20%">{{ Priority.product_id }}</td>
-                                    <td width="60%">{{ Priority.product_name }}</td>
-                                    <td width="10%"><input type="checkbox" id="check-{{ Priority.product_id }}"
-                                                           data-productid="{{ Priority.product_id }}"></td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div><!-- /.box-body -->
-                {% else %}
-                    <div class="box-body no-padding">
-                        <div class="data-empty">
-                            <svg class="cb cb-inbox">
-                                <use xlink:href="#cb-inbox"/>
-                            </svg>
-                            <p>データはありません</p></div>
-                    </div><!-- /.box-body -->
-                {% endif %}
-                <!-- ▲ データがある時 ▲ -->
-            </div><!-- /.box -->
-        </div><!-- /.col -->
-    </div>
-{% endblock %}
 
-{% block modal %}
+                                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title font-weight-bold">
+                                                    {{ 'product_priority.admin.delete.title'|trans }}</h5>
+                                                <button class="close" type="button" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body text-left">
+                                                <p class="text-left">{{ 'product_priority.admin.delete.message'|trans }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button class="btn btn-ec-sub" type="button" data-dismiss="modal">{{ 'common.label.cancel'|trans }}
+                                                </button>
+                                                <button id="delete-checked" class="btn btn-ec-delete">
+                                                    {{ 'common.label.delete'|trans }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    {% if Priorities|length > 0 %}
+                        <div class="card-body no-padding">
+                            <table class="table table-hover">
+                                <thead style="background-color: #F9F9F9;">
+                                <tr>
+                                    <td width="10%">{{ 'product_priority.admin.table.col1'|trans|raw }}</td>
+                                    <td width="20%">{{ 'product_priority.admin.table.col2'|trans }}</td>
+                                    <td width="60%">{{ 'product_priority.admin.table.col3'|trans }}</td>
+                                    <td width="10%"><input type="checkbox" id="toggle-check-all"></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for Priority in Priorities %}
+                                    <tr class="item_box"
+                                        data-priority="{{ Priority.priority }}"
+                                        data-productid="{{ Priority.product_id }}">
+                                        <td width="10%">{{ 'product_priority.admin.table.col1'|trans|raw }}</td>
+                                        <td width="20%">{{ Priority.product_id }}</td>
+                                        <td width="60%">{{ Priority.product_name }}</td>
+                                        <td width="10%"><input type="checkbox" id="check-{{ Priority.product_id }}" data-productid="{{ Priority.product_id }}"></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    {% else %}
+                        <div class="card-body no-padding">
+                            <div class="data-empty">
+                                <p>{{ 'product_priority.admin.data.empty'|trans }}</p></div>
+                        </div><!-- /.box-body -->
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     {# 商品検索モーダル #}
-    <div class="modal fade" id="searchProductModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true">
+    <div class="modal fade" id="searchProductModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                class="modal-close" aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">商品検索</h4>
+                    <h4 class="modal-title" id="myModalLabel">{{ 'product_priority.admin.search.modal.header'|trans }}</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span class="modal-close" aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        {{ form_widget(searchProductModalForm.search, { attr : { placeholder : '商品名・ID・コード' } } ) }}
+                        {{ form_widget(searchProductModalForm.search, { attr : { placeholder : 'product_priority.admin.search.placeholder' } } ) }}
                     </div>
                     <div class="form-group">
                         {{ form_widget(searchProductModalForm.category_name) }}
                     </div>
                     <div class="form-group">
-                        <div class="form-inline">
-                            <button type="button" id="searchProductModalButton" class="btn btn-primary">検索</button>
-                            <button id="register-checked" type="button" class="btn btn-default pull-right hidden"
-                                    style="width:200px">登録
-                            </button>
+                        <div class="row form-inline">
+                            <div class="col">
+                                <button type="button" id="searchProductModalButton" class="btn btn-primary">{{ 'product_priority.admin.search.button'|trans }}</button>
+                            </div>
+                            <div class="col">
+                                <button id="register-checked" type="button" class="btn btn-default d-none float-right"
+                                        style="width:200px">{{ 'common.label.save'|trans }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group" id="searchProductModalList">

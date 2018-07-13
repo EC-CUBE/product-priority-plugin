@@ -1,28 +1,19 @@
-{% if app.session.flashBag.has('eccube.admin.success') %}
-    <div class="padT10">
-    {% for message in app.session.flashBag.get('eccube.admin.success') %}
-        <div class="alert alert-success alert-dismissable alert-section">
-            <button type="button" class="close" data-dismiss="alert"><span class="alert-close" aria-hidden="true">&times;</span></button>
-            <svg class="cb cb-info-circle"> <use xlink:href="#cb-info-circle" /></svg> {{ message|trans }}
-        </div>
-    {% endfor %}
-    </div>
-{% endif %}
+{% include '@admin/alert.twig' %}
 
 {% if pagination.totalItemCount > 0 %}
     <script>
         // 登録ボタンの表示
-        $('#register-checked').removeClass('hidden');
+        $('#register-checked').removeClass('d-none');
 
         // 商品検索(ページング)
-        $('#pagination_wrap a').on('click', function (event) {
-            $('#register-checked').addClass('hidden');
+        $('div.box-footer a').on('click', function (event) {
+            $('#register-checked').addClass('d-none');
             $('#searchProductModalList').html(
-                    '<div class="no-padding">' +
-                    '<div class="data-empty">' +
-                    '<span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...' +
-                    '</div>' +
-                    '</div>'
+                '<div class="no-padding">' +
+                '<div class="data-empty">' +
+                '<i class="fa fa-refresh" aria-hidden="true"></i> Loading...' +
+                '</div>' +
+                '</div>'
             );
             $.ajax({
                 type: 'GET',
@@ -35,7 +26,7 @@
                     $('#pagination_wrap').removeClass('box-footer');
                 },
                 error: function () {
-                    alert('search product failed.');
+                    alert('{{ 'product_priority.admin.search.not_found'|trans }}');
                 }
             });
             // aタグの無効化
@@ -47,14 +38,14 @@
             var checkall = $(this).prop('checked');
             if (checkall) {
                 $('input[id^=register-check-]').prop('checked', true)
-                        .parent()
-                        .parent()
-                        .addClass('checked');
+                    .parent()
+                    .parent()
+                    .addClass('checked');
             } else {
                 $('input[id^=register-check-]').prop('checked', false)
-                        .parent()
-                        .parent()
-                        .removeClass('checked');
+                    .parent()
+                    .parent()
+                    .removeClass('checked');
             }
         });
 
@@ -73,8 +64,8 @@
     <table class="table table-hover">
         <thead style="background-color: #F9F9F9;">
         <tr>
-            <td>商品ID</td>
-            <td>商品名</td>
+            <td>{{ 'product_priority.admin.table.col2'|trans }}</td>
+            <td>{{ 'product_priority.admin.table.col3'|trans }}</td>
             <td class="text-left"><input type="checkbox" id="toggle-register-check-all"></td>
         </tr>
         </thead>
@@ -100,11 +91,15 @@
         </tbody>
     </table>
     {#ページャ#}
-    {% include "pager.twig" with {'pages': pagination.paginationData, 'routes': 'admin_product_priority_search'} %}
+    <div class="col box-footer">
+        <div class="row justify-content-md-center mb-4">
+            {% include "@admin/pager.twig" with {'pages': pagination.paginationData, 'routes': 'admin_product_priority_search_page'} %}
+        </div>
+    </div>
 {% else %}
     <div class="no-padding">
         <div class="data-empty">
-            <p>検索条件に該当するデータがありませんでした。</p>
+            <p>{{ 'product_priority.admin.search.data.empty'|trans }}</p>
         </div>
     </div><!-- /.box-body -->
 {% endif %}
