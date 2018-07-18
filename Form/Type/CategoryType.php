@@ -54,12 +54,10 @@ class CategoryType extends AbstractType
         $Categories = $this->categoryRepository->getList(null, true);
         $countByCategory = $this->productPriorityRepository->getPriorityCountGroupByCategory();
 
-        $emptyValue = sprintf(
-            trans('product_priority.form.category.empty'),
-            isset($countByCategory[ProductPriority::CATEGORY_ID_ALL_PRODUCT])
-                ? $countByCategory[ProductPriority::CATEGORY_ID_ALL_PRODUCT]
-                : 0
-        );
+        $count = isset($countByCategory[ProductPriority::CATEGORY_ID_ALL_PRODUCT])
+            ? $countByCategory[ProductPriority::CATEGORY_ID_ALL_PRODUCT]
+            : 0;
+        $emptyValue = trans('product_priority.form.category.all', ['%count%' => $count]);
 
         $builder->add(
             'category',
@@ -71,7 +69,7 @@ class CategoryType extends AbstractType
                     $name = $Category->getNameWithLevel();
                     $count = isset($countByCategory[$id]) ? $countByCategory[$id] : 0;
 
-                    return sprintf(trans('product_priority.form.category.format'), $name, $count);
+                    return trans('product_priority.form.category.format', ['%name%' => $name, '%count%' => $count]);
                 },
                 'choices' => $Categories,
                 'placeholder' => $emptyValue,

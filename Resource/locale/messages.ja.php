@@ -13,8 +13,8 @@
 
 return [
     'product_priority.nav' => '商品おすすめ順登録',
-    'product_priority.form.category.empty' => '全ての商品(%s)',
-    'product_priority.form.category.format' => '%s(%s)',
+    'product_priority.form.category.all' => '全ての商品(%count%)',
+    'product_priority.form.category.format' => '%name%(%count%)',
     'product_priority.form.config.name' => '商品ソートID',
     'product_priority.form.config.valid_message' => '1～3はEC-CUBEで利用しています。4以上の値を設定してください',
 
