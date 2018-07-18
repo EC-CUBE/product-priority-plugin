@@ -1,44 +1,50 @@
-{% extends 'default_frame.twig' %}
+{% extends '@admin/default_frame.twig' %}
 
 {% set menus = ['store', 'plugin', 'plugin_list'] %}
 
-{% block title %}オーナーズストア{% endblock %}
-{% block sub_title %}プラグイン一覧{% endblock %}
+{% block title %}{{ 'product_priority.admin.config.title'|trans }}{% endblock %}
+{% block sub_title %}{{ 'product_priority.admin.config.subtitle'|trans }}{% endblock %}
 
-{% form_theme form 'Form/bootstrap_3_horizontal_layout.html.twig' %}
+{% form_theme form '@admin/Form/bootstrap_4_horizontal_layout.html.twig' %}
 
 {% block main %}
     {{ form_start(form) }}
-    <div class="row" id="aside_wrap">
-        <div class="col-md-9">
-            <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">商品おすすめ順登録プラグイン設定</h3>
-                </div><!-- /.box-header -->
-                <div class="box-body">
-                    {{ form_row(form.order_by_id) }}
-                    <div>
-                        <ul style="margin-left: 1.0em;">
-                            <li style="text-indent: -1.0em;">※システム情報設定＞マスタデータ管理の「<a href="{{ path('admin_setting_system_masterdata_view', { entity : 'Eccube-Entity-Master-ProductListOrderBy'}) }}">mtb_product_list_order_by</a>」で設定されている「おすすめ順」のIDと合わせて下さい</li>
-                            <li style="text-indent: -1.0em;">※初期状態では変更する必要はありません</li>
-                        </ul>
+    <div class="c-contentsArea__cols">
+        <div class="c-contentsArea__primaryCol">
+            <div class="c-primaryCol">
+                <div class="card rounded border-0 mb-4">
+                    <div class="card-header">
+                        <div class="d-inline-block"><span>{{ 'product_priority.admin.config.header'|trans }}</span></div>
                     </div>
-                </div><!-- /.box-body -->
-            </div><!-- /.box -->
-        </div><!-- /.col -->
-        <div class="col-md-3" id="aside_column">
-            <div class="col_inner">
-                <div class="box no-header">
-                    <div class="box-body">
-                        <div class="row text-center">
-                            <div class="col-sm-6 col-sm-offset-3 col-md-12 col-md-offset-0">
-                                <button type="submit" class="btn btn-primary btn-block btn-lg">登録</button>
-                            </div>
+                    <div class="card-body">
+                        {{ form_row(form.order_by_id) }}
+                        <div>
+                            <ul style="margin-left: 1.0em;">
+                                <li style="text-indent: -1.0em;">{{ 'product_priority.admin.config.tip01'|trans({'%link%': '<a href="'~path('admin_setting_system_masterdata_view', { entity : 'Eccube-Entity-Master-ProductListOrderBy'})~'">mtb_product_list_order_by</a>'})|raw }}</li>
+                                <li style="text-indent: -1.0em;">{{ 'product_priority.admin.config.tip02'|trans }}</li>
+                            </ul>
                         </div>
                     </div><!-- /.box-body -->
                 </div><!-- /.box -->
+            </div><!-- /.col -->
+        </div>
+    </div>
+
+    <div class="c-conversionArea">
+        <div class="c-conversionArea__container">
+            <div class="row justify-content-between align-items-center">
+                <div class="col-6">
+                    <div class="c-conversionArea__leftBlockItem"></div>
+                </div>
+                <div class="col-6">
+                    <div class="row align-items-center justify-content-end">
+                        <div class="col-auto">
+                            <button class="btn btn-ec-conversion px-5" type="submit">{{ 'common.label.save'|trans }}</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div><!-- /.col -->
+        </div>
     </div>
     {{ form_end(form) }}
 {% endblock %}

@@ -1,51 +1,77 @@
 <?php
+
 /*
  * This file is part of EC-CUBE
  *
- * Copyright(c) 2016 LOCKON CO.,LTD. All Rights Reserved.
+ * Copyright(c) LOCKON CO.,LTD. All Rights Reserved.
+ *
  * http://www.lockon.co.jp/
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
 
 namespace Plugin\ProductPriority\Controller;
 
-use Eccube\Application;
 use Eccube\Controller\AbstractController;
 use Plugin\ProductPriority\Entity\Config;
+use Plugin\ProductPriority\Form\Type\ConfigType;
+use Plugin\ProductPriority\Repository\ConfigRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Class ConfigController
+ */
 class ConfigController extends AbstractController
 {
-    public function index(Application $app, Request $request)
-    {
-        $Config = $app['eccube.plugin.product_priority.repository.config']
-            ->find(Config::ID);
+    /**
+     * @var ConfigRepository
+     */
+    private $configRepository;
 
-        $builder = $app['form.factory']
-            ->createBuilder('admin_product_priority_config', $Config);
+    /**
+     * ConfigController constructor.
+     *
+     * @param ConfigRepository $configRepository
+     */
+    public function __construct(ConfigRepository $configRepository)
+    {
+        $this->configRepository = $configRepository;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return mixed
+     * @Route("/%eccube_admin_route%/plugin/ProductPriority/config", name="product_priority_admin_config")
+     * @Template("@ProductPriority/admin/config.twig")
+     */
+    public function index(Request $request)
+    {
+        $Config = $this->configRepository->find(Config::ID);
+
+        $builder = $this->formFactory
+            ->createBuilder(ConfigType::class, $Config);
 
         $form = $builder->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $app['orm.em']->flush($Config);
+                $this->entityManager->flush($Config);
 
-                $app->addSuccess('admin.register.complete', 'admin');
+                $this->addSuccess('admin.register.complete', 'admin');
 
-                return $app->redirect($app->url('plugin_ProductPriority_config'));
+                return $this->redirectToRoute('product_priority_admin_config');
             } else {
-                $app->addError('admin.register.failed', 'admin');
+                $this->addError('admin.register.failed', 'admin');
             }
         }
 
-        return $app->render(
-            'ProductPriority/Resource/template/admin/config.twig',
-            array(
+        return [
                 'form' => $form->createView(),
-            )
-        );
+        ];
     }
 }
