@@ -26,9 +26,12 @@ class Nav implements EccubeNav
     {
         return [
             'product' => [
-                'id' => 'admin_product_priority',
-                'name' => 'product_priority.nav',
-                'url' => 'admin_product_priority',
+                'children' => [
+                    'admin_product_priority' => [
+                        'name' => 'product_priority.nav',
+                        'url' => 'admin_product_priority',
+                    ],
+                ],
             ],
         ];
     }

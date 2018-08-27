@@ -1,5 +1,5 @@
 name: 商品おすすめ順プラグイン
 code: ProductPriority
-version: 1.0.0
+version: 4.0.0
 const:
     readme: カテゴリ毎に商品の並び順を設定できる、おすすめ順ソートを追加するプラグインです。

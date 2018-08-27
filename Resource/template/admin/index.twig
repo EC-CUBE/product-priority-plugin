@@ -227,7 +227,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                     },
                     error: function () {
                         $('.prevention-masked').remove();
-                        alert('{{ 'admin.register.failed'|trans }}');
+                        alert('{{ 'admin.common.save_error'|trans }}');
                     }
                 });
             });
@@ -279,7 +279,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                         <div class="col-6 offset-6">
                                             <div class="form-group">
                                                 <button data-toggle="modal" data-target="#deleteModal" type="button" class="btn btn-default btn-block">
-                                                    {{ 'common.label.delete'|trans }}
+                                                    {{ 'admin.common.delete'|trans }}
                                                 </button>
                                             </div>
                                         </div>
@@ -299,10 +299,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                                                 <p class="text-left">{{ 'product_priority.admin.delete.message'|trans }}</p>
                                             </div>
                                             <div class="modal-footer">
-                                                <button class="btn btn-ec-sub" type="button" data-dismiss="modal">{{ 'common.label.cancel'|trans }}
+                                                <button class="btn btn-ec-sub" type="button" data-dismiss="modal">{{ 'admin.common.cancel'|trans }}
                                                 </button>
                                                 <button id="delete-checked" class="btn btn-ec-delete">
-                                                    {{ 'common.label.delete'|trans }}
+                                                    {{ 'admin.common.delete'|trans }}
                                                 </button>
                                             </div>
                                         </div>
@@ -373,7 +373,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
                             </div>
                             <div class="col">
                                 <button id="register-checked" type="button" class="btn btn-default d-none float-right"
-                                        style="width:200px">{{ 'common.label.save'|trans }}
+                                        style="width:200px">{{ 'admin.common.save'|trans }}
                                 </button>
                             </div>
                         </div>

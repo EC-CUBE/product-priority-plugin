@@ -23,12 +23,11 @@ use Plugin\ProductPriority\Form\Type\CategoryType;
 use Plugin\ProductPriority\Form\Type\SearchType;
 use Plugin\ProductPriority\Repository\ConfigRepository;
 use Plugin\ProductPriority\Repository\ProductPriorityRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class ProductPriorityController
@@ -113,13 +112,12 @@ class ProductPriorityController extends AbstractController
             $orderNo = $this->container->get(ProductListOrderByRepository::class)->find($Config->getOrderById())->getSortNo();
         }
 
-        return
-            [
-                'form' => $form->createView(),
-                'searchProductModalForm' => $searchProductModalForm->createView(),
-                'Priorities' => $Priorities,
-                'categoryId' => is_null($categoryId) ? ProductPriority::CATEGORY_ID_ALL_PRODUCT : $categoryId,
-                'order_no' => $orderNo,
+        return [
+            'form' => $form->createView(),
+            'searchProductModalForm' => $searchProductModalForm->createView(),
+            'Priorities' => $Priorities,
+            'categoryId' => is_null($categoryId) ? ProductPriority::CATEGORY_ID_ALL_PRODUCT : $categoryId,
+            'order_no' => $orderNo,
         ];
     }
 
@@ -130,8 +128,7 @@ class ProductPriorityController extends AbstractController
      * @param $categoryId
      *
      * @return Response
-     * @Method("POST")
-     * @Route("/%eccube_admin_route%/plugin/ProductPriority/move/{categoryId}", name="admin_product_priority_move", requirements={"categoryId"= "\d+"})
+     * @Route("/%eccube_admin_route%/plugin/ProductPriority/move/{categoryId}", name="admin_product_priority_move", requirements={"categoryId"= "\d+"}, methods={"POST"})
      */
     public function move(Request $request, $categoryId)
     {
@@ -159,8 +156,7 @@ class ProductPriorityController extends AbstractController
      * @param $categoryId
      *
      * @return Response
-     * @Method("POST")
-     * @Route("/%eccube_admin_route%/plugin/ProductPriority/delete/{categoryId}", name="admin_product_priority_delete", requirements={"categoryId"= "\d+"})
+     * @Route("/%eccube_admin_route%/plugin/ProductPriority/delete/{categoryId}", name="admin_product_priority_delete", requirements={"categoryId"= "\d+"}, methods={"POST"})
      */
     public function delete(Request $request, $categoryId)
     {
@@ -244,8 +240,7 @@ class ProductPriorityController extends AbstractController
      * @param $categoryId
      *
      * @return Response
-     * @Method("POST")
-     * @Route("/%eccube_admin_route%/plugin/ProductPriority/register/{categoryId}", name="admin_product_priority_register", requirements={"categoryId"= "\d+"})
+     * @Route("/%eccube_admin_route%/plugin/ProductPriority/register/{categoryId}", name="admin_product_priority_register", requirements={"categoryId"= "\d+"}, methods={"POST"})
      */
     public function register(Request $request, $categoryId)
     {
@@ -278,7 +273,7 @@ class ProductPriorityController extends AbstractController
             $this->entityManager->flush($ProductPriority);
         }
 
-        $this->addSuccess('admin.register.complete', 'admin');
+        $this->addSuccess('admin.common.save_complete', 'admin');
 
         return new Response('OK');
     }

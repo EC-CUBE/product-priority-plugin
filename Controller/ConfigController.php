@@ -17,9 +17,9 @@ use Eccube\Controller\AbstractController;
 use Plugin\ProductPriority\Entity\Config;
 use Plugin\ProductPriority\Form\Type\ConfigType;
 use Plugin\ProductPriority\Repository\ConfigRepository;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * Class ConfigController
@@ -62,16 +62,16 @@ class ConfigController extends AbstractController
             if ($form->isValid()) {
                 $this->entityManager->flush($Config);
 
-                $this->addSuccess('admin.register.complete', 'admin');
+                $this->addSuccess('admin.common.save_complete', 'admin');
 
                 return $this->redirectToRoute('product_priority_admin_config');
             } else {
-                $this->addError('admin.register.failed', 'admin');
+                $this->addError('admin.common.save_error', 'admin');
             }
         }
 
         return [
-                'form' => $form->createView(),
+            'form' => $form->createView(),
         ];
     }
 }

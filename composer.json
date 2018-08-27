@@ -1,5 +1,12 @@
 {
+    "name": "ec-cube/ProductPriority",
+    "version": "4.0.0",
+    "type": "eccube-plugin",
+    "extra": {
+        "code": "ProductPriority"
+    },
     "require": {
+        "ec-cube/plugin-installer": "~0.0.4",
         "ext-mbstring": "*",
         "ext-pdo_sqlite": "*"
     },
