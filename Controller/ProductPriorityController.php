@@ -185,7 +185,7 @@ class ProductPriorityController extends AbstractController
             $this->entityManager->flush($Priority);
         }
 
-        $this->addSuccess('admin.delete.complete', 'admin');
+        $this->addSuccess('product_review.admin.delete.complete', 'admin');
 
         return new Response('OK');
     }
