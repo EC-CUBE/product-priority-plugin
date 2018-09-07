@@ -26,10 +26,9 @@ class PluginManager extends AbstractPluginManager
 {
     /**
      * @param array $config
-     * @param null $app
      * @param ContainerInterface $container
      */
-    public function enable($config = [], $app = null, ContainerInterface $container)
+    public function enable(array $config, ContainerInterface $container)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         // mtb_product_list_order_byに"おすすめ順"を追加する.
@@ -70,10 +69,9 @@ class PluginManager extends AbstractPluginManager
 
     /**
      * @param array $config
-     * @param null $app
      * @param ContainerInterface $container
      */
-    public function disable($config = [], $app = null, ContainerInterface $container)
+    public function disable(array $config, ContainerInterface $container)
     {
         $entityManager = $container->get('doctrine.orm.entity_manager');
         // "おすすめ順"を削除
