@@ -38,6 +38,11 @@ install:
   - cd %BASE_DIR%
   # checkout version
   - git checkout origin/3.1
+  # see https://github.com/phpmd/phpmd/blob/master/appveyor.yml#L10-L13
+  - cinst -y OpenSSL.Light --version 1.1.1
+  - SET PATH=C:\Program Files\OpenSSL;%PATH%
+  - sc config wuauserv start= auto
+  - net start wuauserv
   # Set MySQL.
   - cp tests/my.cnf c:\
   - SET PATH=C:\Program Files\MySql\MySQL Server 5.7\bin\;%PATH%
