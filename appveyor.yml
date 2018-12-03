@@ -47,8 +47,8 @@ install:
   - cp tests/my.cnf c:\
   - SET PATH=C:\Program Files\MySql\MySQL Server 5.7\bin\;%PATH%
   - cinst php --version 7.0.32
-  - SET PATH=C:\tools\php\;%PATH%
-  - copy C:\tools\php\php.ini-production C:\tools\php70\php.ini
+  - SET PATH=C:\tools\php70\;%PATH%
+  - copy C:\tools\php70\php.ini-production C:\tools\php70\php.ini
   - echo date.timezone="Asia/Tokyo" >> C:\tools\php70\php.ini
   - echo extension_dir=ext >> C:\tools\php70\php.ini
   - echo extension=php_openssl.dll >> C:\tools\php70\php.ini
